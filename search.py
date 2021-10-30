@@ -2,9 +2,9 @@ import os
 import re
 import ast
 
-folder = str(input("Specify the domain: "))
+folder = input("Specify the domain: ")
 
-kw = str(input("Specify your search string: "))
+kw = input("Specify your search string: ")
 
 localpath = path = os.path.dirname(os.path.abspath(__file__))
 
