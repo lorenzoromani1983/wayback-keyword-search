@@ -1,6 +1,5 @@
 import os
 import re
-import ast
 
 folder = input("Specify the domain: ")
 
