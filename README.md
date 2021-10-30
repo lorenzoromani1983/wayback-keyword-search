@@ -5,7 +5,7 @@ This tool downloads EACH "text/html" page for a specific domain from the Way Bac
 
 > python3 download.py > specify your domain like: nytimes.com (no quotes!)
 
-When the downlaod is finished, a directory named as the domain will be saved in the local path.
+When the download is finished, a directory named as the domain will be saved in the local path.
 
 So you can search for keyword matches within each file in the local dir using the "search.py" file:
 
