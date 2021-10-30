@@ -17,8 +17,8 @@ def getUrls(data, domain):
     wayback_urls = set()
     for record in data:
         if "text/html" in record:
-            items = record.split(' ')
-            savedpage = items[0].split(')')[1]
+            items = record.split(" ")
+            savedpage = items[0].split(")")[1]
             url = domain + savedpage
             timestamp = items[1]
             wayback_url = BASE_URL + timestamp + "/" + url
@@ -27,9 +27,9 @@ def getUrls(data, domain):
 
 
 def download(savePath, url):
-    noSlash = url.rstrip('/').replace('/', '£')
-    if not noSlash.endswith('.txt'):
-        output = os.path.join(savePath, noSlash)+".txt"
+    noSlash = url.rstrip("/").replace("/", "£")
+    if not noSlash.endswith(".txt"):
+        output = os.path.join(savePath, noSlash) + ".txt"
     else:
         output = os.path.join(savePath, noSlash)
     while True:
@@ -37,7 +37,7 @@ def download(savePath, url):
             try:
                 response = requests.get(url)
             except Exception:
-                print("CANNOT RETRIEVE URL: ",url)
+                print("CANNOT RETRIEVE URL: ", url)
                 break
             if response.status_code == 200:
                 print("Writing to file:", url)
@@ -46,7 +46,7 @@ def download(savePath, url):
                     outfile.write(data)
                 break
         if len(output) > 255:
-            print("Skipping url: ",url)
+            print("Skipping url: ", url)
             break
         break
 
