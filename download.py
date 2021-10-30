@@ -40,11 +40,10 @@ def download(savePath, url):
                 print("CANNOT RETRIEVE URL: ",url)
                 break
             if response.status_code == 200:
-                print("Writing to file:",url)
-                file = open(output, "w+")
-                data = response.text
-                file.write(data)
-                file.close()
+                print("Writing to file:", url)
+                with open(output, "w+") as outfile:
+                    data = response.text
+                    outfile.write(data)
                 break
         if len(output) > 255:
             print("Skipping url: ",url)
@@ -70,12 +69,9 @@ def main():
     waybackurls = getUrls(history, domain)
 
     print("Downloading {} pages".format(str(len(waybackurls))))
-    time.sleep(2)
 
-    p = Pool(10)
-    p.map(partial(download, savePath), waybackurls)
-    p.terminate()
-    p.join()
+    with Pool(10) as p:
+        p.map(partial(download, savePath), waybackurls)
 
 
 if __name__ == "__main__":
