@@ -10,6 +10,7 @@ from datetime import datetime
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
+MAX_RETRIES = 3
 
 
 @dataclass
@@ -63,29 +64,44 @@ def getUrls(domain):
     return wayback_urls
 
 
+def safe_filename(url):
+    """
+    Generate a filesystem safe filename from the URL.
+    """
+    output = url.rstrip("/").replace("/", "£")
+    if not output.endswith(".txt"):
+        output += ".txt"
+    return output
+
+
 def download(savePath, url):
-    noSlash = url.rstrip("/").replace("/", "£")
-    if not noSlash.endswith(".txt"):
-        output = os.path.join(savePath, noSlash) + ".txt"
-    else:
-        output = os.path.join(savePath, noSlash)
-    while True:
-        if len(output) < 255:
-            try:
-                response = requests.get(url)
-            except Exception:
-                print("CANNOT RETRIEVE URL: ", url)
-                break
-            if response.status_code == 200:
-                print("Writing to file:", url)
-                with open(output, "w+") as outfile:
-                    data = response.text
-                    outfile.write(data)
-                break
-        if len(output) > 255:
-            print("Skipping url: ", url)
+    """
+    Saves the given url into a provided directory with a
+    safe filename
+    """
+    output = safe_filename(url)
+    if len(output) >= 255:
+        print("Skipping url: ", url)
+        return
+
+    for _ in range(MAX_RETRIES):
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.ReadTimeout:
+            continue
+        except requests.exceptions.HTTPError:
+            continue
+        else:
             break
-        break
+    else:
+        print(f"Failed to download {url} after {MAX_RETRIES} retries")
+        return
+
+    print("Writing to file:", url)
+    with open(os.path.join(savePath, output), "w+") as outfile:
+        data = response.text
+        outfile.write(data)
 
 
 def main():
