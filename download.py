@@ -4,24 +4,61 @@ import sys
 from multiprocessing import Pool
 from functools import partial
 import time
+from dataclasses import dataclass
+from datetime import datetime
 
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
 
 
-def getUrls(data, domain):
+@dataclass
+class WaybackRecord:
+    urlkey: str
+    timestamp: str
+    original: str
+    mimetype: str
+    statuscode: str
+    digest: str
+    length: int
+
+    @property
+    def path(self):
+        return self.urlkey.split(")")[1]
+
+
+def parse_wayback_record(record_str):
+    (
+        urlkey,
+        timestamp,
+        original,
+        mimetype,
+        statuscode,
+        digest,
+        length,
+    ) = record_str.split()
+    return WaybackRecord(
+        urlkey=urlkey,
+        timestamp=timestamp,
+        original=original,
+        mimetype=mimetype,
+        statuscode=statuscode,
+        digest=digest,
+        length=int(length)
+    )
+
+
+def getUrls(domain):
     """
     Return a set of wayback URLs
     """
     wayback_urls = set()
-    for record in data:
-        if "text/html" in record:
-            items = record.split(" ")
-            savedpage = items[0].split(")")[1]
-            url = domain + savedpage
-            timestamp = items[1]
-            wayback_url = BASE_URL + timestamp + "/" + url
+    history = requests.get(API_URL + domain).text.splitlines()
+    for line in history:
+        record = parse_wayback_record(line)
+        if record.mimetype == "text/html":
+            url = domain + record.path
+            wayback_url = BASE_URL + record.timestamp + "/" + url
             wayback_urls.add(wayback_url)
     return wayback_urls
 
@@ -54,7 +91,7 @@ def download(savePath, url):
 def main():
     domain = input("Type the target domain: ")
 
-    localDir = path = os.path.dirname(os.path.abspath(__file__))
+    localDir = os.path.dirname(os.path.abspath(__file__))
     savePath = os.path.join(localDir, domain)
 
     try:
@@ -64,9 +101,7 @@ def main():
         print("Quitting to avoid over-writing your data")
         sys.exit(1)
 
-    history = requests.get(API_URL + domain).text.splitlines()
-
-    waybackurls = getUrls(history, domain)
+    waybackurls = getUrls(domain)
 
     print("Downloading {} pages".format(str(len(waybackurls))))
 
