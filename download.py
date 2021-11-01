@@ -4,58 +4,110 @@ import sys
 from multiprocessing import Pool
 from functools import partial
 import time
+from dataclasses import dataclass
+from datetime import datetime
 
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
+MAX_RETRIES = 3
 
 
-def getUrls(data, domain):
+@dataclass
+class WaybackRecord:
+    urlkey: str
+    timestamp: str
+    original: str
+    mimetype: str
+    statuscode: str
+    digest: str
+    length: int
+
+    @property
+    def path(self):
+        return self.urlkey.split(")")[1]
+
+
+def parse_wayback_record(record_str):
+    (
+        urlkey,
+        timestamp,
+        original,
+        mimetype,
+        statuscode,
+        digest,
+        length,
+    ) = record_str.split()
+    return WaybackRecord(
+        urlkey=urlkey,
+        timestamp=timestamp,
+        original=original,
+        mimetype=mimetype,
+        statuscode=statuscode,
+        digest=digest,
+        length=int(length)
+    )
+
+
+def getUrls(domain):
     """
     Return a set of wayback URLs
     """
     wayback_urls = set()
-    for record in data:
-        if "text/html" in record:
-            items = record.split(' ')
-            savedpage = items[0].split(')')[1]
-            url = domain + savedpage
-            timestamp = items[1]
-            wayback_url = BASE_URL + timestamp + "/" + url
+    history = requests.get(API_URL + domain).text.splitlines()
+    for line in history:
+        record = parse_wayback_record(line)
+        if record.mimetype == "text/html":
+            url = domain + record.path
+            wayback_url = BASE_URL + record.timestamp + "/" + url
             wayback_urls.add(wayback_url)
     return wayback_urls
 
 
+def safe_filename(url):
+    """
+    Generate a filesystem safe filename from the URL.
+    """
+    output = url.rstrip("/").replace("/", "£")
+    if not output.endswith(".txt"):
+        output += ".txt"
+    return output
+
+
 def download(savePath, url):
-    noSlash = url.rstrip('/').replace('/', '£')
-    if not noSlash.endswith('.txt'):
-        output = os.path.join(savePath, noSlash)+".txt"
-    else:
-        output = os.path.join(savePath, noSlash)
-    while True:
-        if len(output) < 255:
-            try:
-                response = requests.get(url)
-            except Exception:
-                print("CANNOT RETRIEVE URL: ",url)
-                break
-            if response.status_code == 200:
-                print("Writing to file:",url)
-                file = open(output, "w+")
-                data = response.text
-                file.write(data)
-                file.close()
-                break
-        if len(output) > 255:
-            print("Skipping url: ",url)
+    """
+    Saves the given url into a provided directory with a
+    safe filename
+    """
+    output = safe_filename(url)
+    if len(output) >= 255:
+        print("Skipping url: ", url)
+        return
+
+    for _ in range(MAX_RETRIES):
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.ReadTimeout:
+            continue
+        except requests.exceptions.HTTPError:
+            continue
+        else:
             break
-        break
+    else:
+        print(f"Failed to download {url} after {MAX_RETRIES} retries")
+        return
+
+    print("Writing to file:", url)
+    with open(os.path.join(savePath, output), "w+") as outfile:
+        data = response.text
+        outfile.write(data)
 
 
 def main():
     domain = input("Type the target domain: ")
 
-    localDir = path = os.path.dirname(os.path.abspath(__file__))
+    localDir = os.path.dirname(os.path.abspath(__file__))
     savePath = os.path.join(localDir, domain)
 
     try:
@@ -65,17 +117,12 @@ def main():
         print("Quitting to avoid over-writing your data")
         sys.exit(1)
 
-    history = requests.get(API_URL + domain).text.splitlines()
-
-    waybackurls = getUrls(history, domain)
+    waybackurls = getUrls(domain)
 
     print("Downloading {} pages".format(str(len(waybackurls))))
-    time.sleep(2)
 
-    p = Pool(10)
-    p.map(partial(download, savePath), waybackurls)
-    p.terminate()
-    p.join()
+    with Pool(10) as p:
+        p.map(partial(download, savePath), waybackurls)
 
 
 if __name__ == "__main__":
