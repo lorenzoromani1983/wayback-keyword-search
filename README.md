@@ -12,3 +12,6 @@ So you can search for keyword matches within each file in the local dir using th
 > python3 search.py > specify your keyword (no quotes!).
 
 BE CAREFUL: BIG DOMAINS MAY REQUIRE A LONG TIME TO DOWNLOAD! 
+
+THE TOOL IS AVAILABLE BOTH IN PYTHON AND GO.
+IF YOU CHOOSE TO RUN THE GO VERSION, YOU BEST COMPILE IT (go build download.go; go build search.go). OTHERWISE REMEMBER TO RUN IT IN THE TERMINAL FROM THE SCRIPT'S DIRECTORY.
