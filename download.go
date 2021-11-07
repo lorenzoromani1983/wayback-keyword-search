@@ -1,3 +1,5 @@
+//TESTED ON LINUX ONLY SO FAR
+
 package main
 
 import (
