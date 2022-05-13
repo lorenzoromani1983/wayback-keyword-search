@@ -94,7 +94,7 @@ func saveFiles(array_ []string, waitgroup *sync.WaitGroup) {
 func createDir() {
 	fmt.Print("Specify the target domain (only lowercase): ")
 	fmt.Scanln(&targetDomain)
-	fmt.Print("Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and date; '2' > everything): ")
+	fmt.Print("Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' > everything): ")
 	fmt.Scanln(&timeStamp)
 	path, err := os.Getwd()
 	if err != nil {
