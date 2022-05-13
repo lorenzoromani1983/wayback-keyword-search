@@ -1,5 +1,3 @@
-//TESTED ON LINUX ONLY SO FAR
-
 package main
 
 import (
@@ -17,6 +15,7 @@ import (
 
 var path string
 var targetDomain string
+var timeStamp string
 var chunksize int
 
 func subslice(slice []string, chunkSize int) [][]string {
@@ -95,6 +94,8 @@ func saveFiles(array_ []string, waitgroup *sync.WaitGroup) {
 func createDir() {
 	fmt.Print("Specify the target domain (only lowercase): ")
 	fmt.Scanln(&targetDomain)
+	fmt.Print("Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and date; '2' > everything): ")
+	fmt.Scanln(&timeStamp)
 	path, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -112,7 +113,7 @@ func getHistory() []string {
 	client := http.Client{Timeout: time.Duration(50) * time.Second}
 	response, err := client.Get(query_url)
 	if err != nil {
-		panic("Error: can't download history for the specified domain")
+		panic("Error: can't download history for the specified domain ")
 	}
 	body, _ := io.ReadAll(response.Body)
 	content := string(body)
@@ -125,8 +126,12 @@ func getHistory() []string {
 			savedpage := strings.Split(data[0], ")")[1]
 			url := targetDomain + savedpage
 			timestamp := string(data[1])
-			wayback_url := BASE_URL + timestamp + "/" + url
-			waybackurls = append(waybackurls, wayback_url)
+			
+			if strings.HasPrefix(timestamp, timeStamp) {
+			
+				wayback_url := BASE_URL + timestamp + "/" + url
+				waybackurls = append(waybackurls, wayback_url)
+			}
 		}
 	}
 	return waybackurls
@@ -134,10 +139,10 @@ func getHistory() []string {
 
 func main() {
 	createDir()
-	history := getHistory()
-	fmt.Println("Number of pages archived from WayBack Machine:")
+	history := getHistory() 
+	fmt.Println("Number of pages to be downloaded: ")
 	fmt.Println(len(history))
-	if len(history) > 10 {
+	if len(history) >= 10 {
 		chunksize = len(history) / 10
 	} else {	
 		chunksize = len(history)
