@@ -17,3 +17,5 @@ The tool is available in both Python3 and Go versions. Go is currently linux-onl
 
 IF YOU CHOOSE TO RUN THE GO VERSION, YOU BEST COMPILE IT (go build download.go; go build search.go). 
 OTHERWISE REMEMBER TO RUN IT IN THE TERMINAL FROM THE SCRIPT'S DIRECTORY.
+
+FEB. 2023: Added download file for Windows OS. Compile with Go build path_to_file and then use the search_windows.py file in order to get matches. No Golang search tool for the time being, just use the Python version.
