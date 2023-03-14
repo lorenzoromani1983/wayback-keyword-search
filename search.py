@@ -1,5 +1,6 @@
 import os
 import re
+import time
 
 folder = input("Specify the domain: ")
 
@@ -22,3 +23,6 @@ for file in files:
             print(file.replace("£", "/").replace(".txt", ""))
         else:
             print(file.replace("£", "/"))
+
+print("Search finished")
+time.sleep(5000)
