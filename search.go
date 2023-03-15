@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 	"bufio"
-	"time"
 )
 
 func listdir(domain string) []string {
