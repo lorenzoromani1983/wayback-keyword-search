@@ -37,7 +37,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := strings.ToLower(scanner.Text())
-    fmt.Println("Searching for:",input)
+        fmt.Println("Searching for:",input)
 	for _, file_ := range listdir(domain) {
 		file, _ := os.Open(file_)
 		defer file.Close()
@@ -46,10 +46,10 @@ func main() {
 		    line := strings.ToLower(scanner.Text())
 		    if strings.Contains(line, input) {
 		        printUrl(file_)
-						break
+			break
 		     }
 		  }
 	 }
-	 fmt.Println("Search finished")
-	 time.Sleep(time.Second * 5000)
+	 fmt.Println("Search finished, press enter to close window")
+	 fmt.Scanln()
 }
