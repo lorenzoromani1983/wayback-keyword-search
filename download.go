@@ -84,11 +84,11 @@ func createDir() {
 func saveFiles(array_ []string, waitgroup *sync.WaitGroup) {
 	defer waitgroup.Done()
 	for _, url := range array_ {
-	    urlstring_ := strings.Replace(url, "/", "£", -1)
-        urlstring__ := strings.Replace(urlstring_, ":", "!!!", -1)
-        urlstring := strings.Replace(urlstring__, "?", "§§", -1)
-        file_name_check := urlstring+".txt"
-        pathToFile := path + "/" + targetDomain + "/" + file_name_check
+		urlstring_ := strings.Replace(url, "/", "£", -1)
+		urlstring__ := strings.Replace(urlstring_, ":", "!!!", -1)
+		urlstring := strings.Replace(urlstring__, "?", "§§", -1)
+		file_name_check := urlstring+".txt"
+		pathToFile := path + "/" + targetDomain + "/" + file_name_check
         if pathExists(pathToFile) == false {
             if len(url) < 255 {
                 content := getPage(url)
