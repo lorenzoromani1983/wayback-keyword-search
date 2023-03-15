@@ -24,7 +24,8 @@ func printUrl(filename string) {
 	webpath := strings.Replace(array[len(array)-1],"$",":",-1)
 	webpath_ := strings.Replace(webpath, "£", "/",-1)
 	webpath__ := strings.Replace(webpath_, "!!!", ":",-1)
-	webpath_final := strings.Replace(webpath__, ".txt","",1)
+	webpath___ := strings.Replace(webpath__, "§§", "?", -1)
+	webpath_final := strings.Replace(webpath___, ".txt","",1)
 	fmt.Println(webpath_final)
 }
 
