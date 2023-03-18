@@ -37,3 +37,5 @@ The best way to use the Go version is by running the compiled executables:
 go build search.go
 
 go build download.go
+
+Notice that the Go version also features a download_channels.go version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
