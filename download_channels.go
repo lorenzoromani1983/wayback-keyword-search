@@ -158,17 +158,17 @@ func main() {
 	fmt.Println(len(history))
 	workers := 10
 	channel := make(chan string)
-    ctx, cancel := context.WithCancel(context.TODO())
-    defer cancel()
-    for i := 0; i < workers; i++ {
-        wg.Add(1)
-        go downloader(ctx, &wg, channel, i)
-    }
-    for _, url := range history {
-        channel <- url
-    }
-    close(channel)
-    wg.Wait()
-    fmt.Println("Download completed. Press Enter to close window")
-    fmt.Scanln()
+        ctx, cancel := context.WithCancel(context.TODO())
+        defer cancel()
+        for i := 0; i < workers; i++ {
+            wg.Add(1)
+            go downloader(ctx, &wg, channel, i)
+        }
+        for _, url := range history {
+            channel <- url
+        }
+        close(channel)
+        wg.Wait()
+        fmt.Println("Download completed. Press Enter to close window")
+        fmt.Scanln()
 }
