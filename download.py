@@ -17,8 +17,8 @@ def getUrls(data, domain, timeframe):
     wayback_urls = set()
     for record in data:
         items = record.split(' ')
-        savedpage = items[0].split(')')[1]
-        url = domain + savedpage
+        savedpage = items[0].split(')/')[1]
+        url = domain + "/" + savedpage
         timestamp = items[1]
         if str(timestamp.strip()).startswith(timeframe):
             wayback_url = BASE_URL + timestamp + "/" + url
