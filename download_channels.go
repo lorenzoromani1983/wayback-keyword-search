@@ -122,12 +122,14 @@ func getHistory() []string {
 	for _, line := range lines {
 		if len(line) > 0 {
 			data := strings.Split(line, " ")
-			savedpage := strings.Split(data[0], ")/")[1]
-			url := targetDomain + "/" + savedpage
-			timestamp := string(data[1])
-			if strings.HasPrefix(timestamp, timeStamp) {
-				wayback_url := BASE_URL + timestamp + "/" + url
-				waybackurls = append(waybackurls, wayback_url)
+			if strings.Contains(data[0], ")/") == true {
+				savedpage := strings.Split(data[0], ")/")[1]
+				url := targetDomain + "/" + savedpage
+				timestamp := string(data[1])
+				if strings.HasPrefix(timestamp, timeStamp) {
+					wayback_url := BASE_URL + timestamp + "/" + url
+					waybackurls = append(waybackurls, wayback_url)
+				}
 			}
 		}
 	}
