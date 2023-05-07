@@ -17,7 +17,10 @@ def getUrls(data, domain, timeframe):
     wayback_urls = set()
     for record in data:
         items = record.split(' ')
-        savedpage = items[0].split(')/')[1]
+        try:
+            savedpage = items[0].split(')/')[1]
+        except Exception:
+            continue
         url = domain + "/" + savedpage
         timestamp = items[1]
         if str(timestamp.strip()).startswith(timeframe):
