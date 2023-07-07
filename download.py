@@ -57,7 +57,7 @@ def download(savePath, url):
 
 def main():
     domain = input("Type the target domain: ")
-    timeStamp = str(input("Specify a timestamp, ex: yyyymmdd, but also: yyyymm. To download everything just type '2'): "))
+    timeStamp = str(input("Specify a timestamp, ex: yyyymmdd, but also: yyyymm. Type '2' or '1' > to download everything for the years past 20** or 19**): "))
 
     localDir = path = os.path.dirname(os.path.abspath(__file__))
     savePath = os.path.join(localDir, domain)
