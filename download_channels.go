@@ -55,7 +55,7 @@ func setDomain() {
 	fmt.Print("Specify the target domain (only lowercase): ")
 	fmt.Scanln(&targetDomain)
 	fmt.Print(
-		"Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' > everything): ",
+		"Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**): ",
 	)
 	fmt.Scanln(&timeStamp)
 }
