@@ -14,8 +14,9 @@ print("\nMatches: \n")
 
 for file in files:
     try:
-        data = open(localpath + "/" + folder + "/" + file).read()
+        data = open(localpath + "/" + folder + "/" + file, encoding = 'Latin1').read()
     except Exception as e:
+        print("Error reading file, check manually:",file)
         continue
     if re.search(kw, data, flags=re.IGNORECASE):
         if not file.endswith("robots.txt"):
@@ -23,6 +24,4 @@ for file in files:
         else:
             print(file.replace("£", "/").replace("!!!", ":").replace("§§", "?"))
 
-print("Search Finished")
-time.sleep(10000)
- 
+input("Search Finished. Press Enter to exit...")
