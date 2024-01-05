@@ -1,6 +1,6 @@
 # wayback-keyword-search 
 
-[IMPORTANT NOTE: WAYBACK IS NOW RATE LIMITING. THIS TOOL WON'T WORK. I'M CHANGING THE WAY IT DOWNLOADS FILES USING WGET INSTEAD OF REQUESTS. SEEMS WORKING. WILL UPDATE WITH NEW VERSION SOON.]
+[IMPORTANT NOTE: WAYBACK IS NOW RATE LIMITING. THIS TOOL WON'T WORK. I'M CHANGING THE WAY IT DOWNLOADS FILES USING A SINGLE SESSION. SEEMS WORKING. WILL UPDATE WITH NEW VERSION SOON.]
 
 This tools downloads each page from the Wayback Machine for a specific input domain and saves each page as a local .txt file, so that you can later search for keyword matches within the saved files.
 
