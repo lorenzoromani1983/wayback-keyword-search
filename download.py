@@ -4,11 +4,10 @@ import sys
 from multiprocessing import Pool
 from functools import partial
 import time
-
+from contextlib import closing
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
-
 
 def getUrls(data, domain, timeframe):
     """
@@ -18,43 +17,39 @@ def getUrls(data, domain, timeframe):
     for record in data:
         items = record.split(' ')
         try:
-            savedpage = items[0].split(')/')[1]
+            savedpage = items[2]
         except Exception:
             continue
-        url = domain + "/" + savedpage
+        url = savedpage
         timestamp = items[1]
         if str(timestamp.strip()).startswith(timeframe):
             wayback_url = BASE_URL + timestamp + "/" + url
             wayback_urls.add(wayback_url)
     return wayback_urls
 
-
-def download(savePath, url):
+def download(session, savePath, url):
+    """
+    Download the webpage using requests with a single session and save it in the specified path.
+    """
     noSlash = url.rstrip('/').replace('/', '£').replace(":", "!!!").replace("?", "§§")
-    if not noSlash.endswith('.txt'):
-        output = os.path.join(savePath, noSlash)+".txt"
-    else:
-        output = os.path.join(savePath, noSlash)
-    while True:
-        if len(output) < 255:
-            try:
-                response = requests.get(url)
-            except Exception:
-                print("CANNOT RETRIEVE URL: ",url)
-                break
+    filename = noSlash + ".txt" if not noSlash.endswith('.txt') else noSlash
+    output = os.path.join(savePath, filename)
+     
+    if len(filename) <= 255 and not os.path.exists(os.path.join(savePath, filename)):
+        with closing(session.get(url, stream=True)) as response:
             if response.status_code == 200:
-                print("Writing to file:",url)
-                file = open(output, "w+")
-                data = response.text
-                file.write(data)
-                file.close()
-                break
-        if len(output) > 255:
-            print("Skipping url: ",url)
-            break
-        break
-
-
+                with open(output, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        f.write(chunk)
+                    print("Downloaded:",url)
+            else:
+                print(f"Failed to download URL: {url} with status code: {response.status_code}")
+    else:
+        if len(filename) > 255:
+            print("Skipped - filename too long", url)
+        if os.path.exists(os.path.join(savePath, filename)):
+            print("Skipped (file already existing):",url)
+            
 def main():
     domain = input("Type the target domain: ")
     timeStamp = str(input("Specify a timestamp, ex: yyyymmdd, but also: yyyymm. Type '2' or '1' > to download everything for the years past 20** or 19**): "))
@@ -65,22 +60,19 @@ def main():
     try:
         os.mkdir(savePath)
     except FileExistsError:
-        print("An output directory for the given domain already exists.")
-        print("Quitting to avoid over-writing your data")
-        sys.exit(1)
+        print("Resuming download")
+        pass
 
     history = requests.get(API_URL + domain).text.splitlines()
-
     waybackurls = getUrls(history, domain, timeStamp)
 
-    print("Downloading {} pages".format(str(len(waybackurls))))
+    print("Preparing to download {} pages".format(str(len(waybackurls))))
     time.sleep(2)
 
-    p = Pool(10)
-    p.map(partial(download, savePath), waybackurls)
-    p.terminate()
-    p.join()
-
+    with requests.Session() as session:
+        for url in waybackurls:
+            #time.sleep(1) uncomment this line and eventually increase the sleep time if Archive blocks you.
+            download(session, savePath, url)
 
 if __name__ == "__main__":
     main()
