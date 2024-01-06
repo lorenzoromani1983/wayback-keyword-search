@@ -24,15 +24,13 @@ So you can search for keyword matches within each file in the local dir using th
 
 --------------------------
 
-[*] Go usage:
+[*] Go usage: [NOT WORKING NOW DUE TO ARCHIVE BLOCKING TOO MANY PARALLEL REQUESTS]
 
 > go run download.go
 
 and then:
 
 > go run search.go
-
-The Go version has an additional feature compared to the Python version, as it resumes a previously aborted download.
 
 The best way to use the Go version is by running the compiled executables:
 
@@ -42,4 +40,3 @@ go build download.go
 
 Notice that the Go version also features a download_channels.go version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
 
-[!] WARNING: THE WAYBACK MACHINE MAY BLOCK YOUR IP TEMPORARILY. To resume a partially completed download use the Go-lang version (Python will support resume in the future).
