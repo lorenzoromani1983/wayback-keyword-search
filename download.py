@@ -1,7 +1,6 @@
 import requests
 import os
 import sys
-from multiprocessing import Pool
 from functools import partial
 import time
 from contextlib import closing
@@ -27,6 +26,7 @@ def getUrls(data, domain, timeframe):
             wayback_urls.add(wayback_url)
     return wayback_urls
 
+
 def download(session, savePath, url):
     """
     Download the webpage using requests with a single session and save it in the specified path.
@@ -36,6 +36,7 @@ def download(session, savePath, url):
     output = os.path.join(savePath, filename)
      
     if len(filename) <= 255 and not os.path.exists(os.path.join(savePath, filename)):
+        time.sleep(1)
         with closing(session.get(url, stream=True)) as response:
             if response.status_code == 200:
                 with open(output, 'wb') as f:
@@ -49,7 +50,7 @@ def download(session, savePath, url):
             print("Skipped - filename too long", url)
         if os.path.exists(os.path.join(savePath, filename)):
             print("Skipped (file already existing):",url)
-            
+
 def main():
     domain = input("Type the target domain: ")
     timeStamp = str(input("Specify a timestamp, ex: yyyymmdd, but also: yyyymm. Type '2' or '1' > to download everything for the years past 20** or 19**): "))
@@ -71,8 +72,11 @@ def main():
 
     with requests.Session() as session:
         for url in waybackurls:
-            #time.sleep(1) uncomment this line and eventually increase the sleep time if Archive blocks you.
-            download(session, savePath, url)
+            try:
+                download(session, savePath, url)
+            except Exception as e:
+                print("Error downloading:",url)
+                continue
 
 if __name__ == "__main__":
     main()
