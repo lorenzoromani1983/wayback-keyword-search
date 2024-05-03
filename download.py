@@ -4,7 +4,7 @@ import sys
 from functools import partial
 import time
 from contextlib import closing
-from fake-useragent import UserAgent
+from fake_useragent import UserAgent
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
