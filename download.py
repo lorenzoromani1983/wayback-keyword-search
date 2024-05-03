@@ -4,9 +4,11 @@ import sys
 from functools import partial
 import time
 from contextlib import closing
+from fake-useragent import UserAgent
 
 API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
+useragent = UserAgent()
 
 def getUrls(data, domain, timeframe):
     """
@@ -71,6 +73,7 @@ def main():
     time.sleep(2)
 
     with requests.Session() as session:
+        session.headers = {'user-agent':useragent.chrome}
         for url in waybackurls:
             try:
                 download(session, savePath, url)
