@@ -38,7 +38,6 @@ def download(session, savePath, url):
     output = os.path.join(savePath, filename)
      
     if len(filename) <= 255 and not os.path.exists(os.path.join(savePath, filename)):
-        time.sleep(1)
         with closing(session.get(url, stream=True)) as response:
             if response.status_code == 200:
                 with open(output, 'wb') as f:
@@ -70,7 +69,7 @@ def main():
     waybackurls = getUrls(history, domain, timeStamp)
 
     print("Preparing to download {} pages".format(str(len(waybackurls))))
-    time.sleep(2)
+    time.sleep(2) #try to reduce (or eliminate) this number, but at your own risk of being blocked.
 
     with requests.Session() as session:
         session.headers = {'user-agent':useragent.chrome}
