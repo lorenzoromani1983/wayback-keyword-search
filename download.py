@@ -1,7 +1,6 @@
 import requests
 import os
 import sys
-from functools import partial
 import time
 from contextlib import closing
 from fake_useragent import UserAgent
