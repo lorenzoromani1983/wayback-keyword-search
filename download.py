@@ -69,7 +69,7 @@ def main():
     waybackurls = getUrls(history, domain, timeStamp)
 
     print("Preparing to download {} pages".format(str(len(waybackurls))))
-    time.sleep(2) #try to reduce (or eliminate) this number, but at your own risk of being blocked.
+    time.sleep(2) #try to reduce (or eliminate) this sleep time, but at your own risk of being blocked.
 
     with requests.Session() as session:
         session.headers = {'user-agent':useragent.chrome}
