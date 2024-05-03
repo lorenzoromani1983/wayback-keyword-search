@@ -27,7 +27,6 @@ def getUrls(data, domain, timeframe):
             wayback_urls.add(wayback_url)
     return wayback_urls
 
-
 def download(session, savePath, url):
     """
     Download the webpage using requests with a single session and save it in the specified path.
