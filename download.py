@@ -71,7 +71,7 @@ def main():
     history = requests.get(API_URL + domain).text.splitlines()
     waybackurls = getUrls(history, domain, timeStamp)
 
-    print(f"Preparing to download {len(waybackurls)-done} pages"
+    print(f"Preparing to download {len(waybackurls)-done} pages")
     time.sleep(1) #try to reduce (or eliminate) this sleep time, but at your own risk of being blocked.
 
     with requests.Session() as session:
