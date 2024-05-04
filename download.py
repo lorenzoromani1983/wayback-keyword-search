@@ -57,6 +57,11 @@ def main():
     localDir = path = os.path.dirname(os.path.abspath(__file__))
     savePath = os.path.join(localDir, domain)
 
+    if os.path.exist(savePath):
+        done = len(os.listdir(savePath))
+    else:
+        done = 0
+
     try:
         os.mkdir(savePath)
     except FileExistsError:
@@ -66,8 +71,8 @@ def main():
     history = requests.get(API_URL + domain).text.splitlines()
     waybackurls = getUrls(history, domain, timeStamp)
 
-    print("Preparing to download {} pages".format(str(len(waybackurls))))
-    time.sleep(2) #try to reduce (or eliminate) this sleep time, but at your own risk of being blocked.
+    print(f"Preparing to download {len(waybackurls)-done} pages"
+    time.sleep(1) #try to reduce (or eliminate) this sleep time, but at your own risk of being blocked.
 
     with requests.Session() as session:
         session.headers = {'user-agent':useragent.chrome}
