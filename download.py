@@ -57,7 +57,7 @@ def main():
     localDir = path = os.path.dirname(os.path.abspath(__file__))
     savePath = os.path.join(localDir, domain)
 
-    if os.path.exist(savePath):
+    if os.path.exists(savePath):
         done = len(os.listdir(savePath))
     else:
         done = 0
