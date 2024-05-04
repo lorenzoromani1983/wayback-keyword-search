@@ -34,7 +34,7 @@ def download(session, savePath, url):
     noSlash = url.rstrip('/').replace('/', '£').replace(":", "!!!").replace("?", "§§")
     filename = noSlash + ".txt" if not noSlash.endswith('.txt') else noSlash
     output = os.path.join(savePath, filename)
-     
+    time.sleep(1) # you can try eliminating this sleep time, but at your own risk of being blocked by the Archive API.
     if len(filename) <= 255 and not os.path.exists(os.path.join(savePath, filename)):
         with closing(session.get(url, stream=True)) as response:
             if response.status_code == 200:
@@ -72,8 +72,7 @@ def main():
     waybackurls = getUrls(history, domain, timeStamp)
 
     print(f"Preparing to download {len(waybackurls)-done} pages")
-    time.sleep(1) #try to reduce (or eliminate) this sleep time, but at your own risk of being blocked.
-
+    
     with requests.Session() as session:
         session.headers = {'user-agent':useragent.chrome}
         for url in waybackurls:
