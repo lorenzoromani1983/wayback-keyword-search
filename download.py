@@ -59,7 +59,6 @@ def main():
 
     if os.path.exists(savePath):
         done = len([filename for filename in os.listdir(savePath) if filename.split("£web£")[1].startswith(timeStamp)])
-        done = len(os.listdir(savePath))
     else:
         done = 0
 
