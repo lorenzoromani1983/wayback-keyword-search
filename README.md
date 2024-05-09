@@ -1,6 +1,6 @@
 # wayback-keyword-search 
 
-IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWLY (IT CAN'T LEVERAGE PARALLELISM ANYMORE). THE PYTHON VERSION IS UPDATED; THE GO VERSION IS NOT (YET).
+IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWLY (IT CAN'T LEVERAGE PARALLELISM ANYMORE).
 
 This tools downloads each page from the Wayback Machine for a specific input domain and saves each page as a local .txt file, so that you can later search for keyword matches within the saved files.
 
@@ -28,7 +28,7 @@ So you can search for keyword matches within each file in the local dir using th
 
 --------------------------
 
-[*] Go usage: [NOT WORKING NOW DUE TO ARCHIVE BLOCKING TOO MANY PARALLEL REQUESTS]
+[*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - NOT YET TESTED]
 
 > go run download.go
 
