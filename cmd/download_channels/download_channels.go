@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -13,36 +14,56 @@ import (
 	"wayback-keyword-search/internal/engine"
 )
 
+var sem chan struct{}
+
 var path string
 var targetDomain string
 var timeStamp string
+var maxWorkers int
 
 func main() {
-	var wg sync.WaitGroup
-	setDomain()
+	flag.StringVar(&targetDomain, "domain", "", "Specify the target domain (only lowercase)")
+	flag.StringVar(&timeStamp, "timeStamp", "", "Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**")
+	flag.IntVar(&maxWorkers, "workers", 10, "Specify the max workers (default=10)")
+
+	flag.Parse()
+
+	if targetDomain == "" || timeStamp == "" {
+		fmt.Println("Please provide both domain and timestamp.")
+		return
+	}
+
+	path, _ = os.Getwd()
+
 	if pathExists(path+"/"+targetDomain) == false {
 		setDir(createDir)
 	} else {
 		setDir(nil)
 	}
+
 	history := engine.GetHistory(targetDomain, timeStamp)
-	fmt.Println("Number of pages saved by Archive: ")
-	fmt.Println(len(history))
-	workers := 10
-	channel := make(chan string)
+	historyLen := len(history)
+
+	fmt.Printf("Number of pages saved by Archive: %d\n", historyLen)
+
+	if len(history) == 0 {
+		return
+	}
+
+	sem = make(chan struct{}, maxWorkers)
+	var wg sync.WaitGroup
+	wg.Add(historyLen)
+
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go downloader(ctx, &wg, channel, i)
+
+	for i := 0; i < historyLen; i++ {
+		go downloader(ctx, &wg, history[i])
 	}
-	for _, url := range history {
-		channel <- url
-	}
-	close(channel)
+
 	wg.Wait()
-	fmt.Println("Download completed. Press Enter to close window")
-	fmt.Scanln()
+
+	fmt.Println("Download completed.")
 }
 
 func pathExists(Path string) bool {
@@ -54,16 +75,6 @@ func pathExists(Path string) bool {
 	}
 }
 
-func setDomain() {
-	path, _ = os.Getwd()
-	fmt.Print("Specify the target domain (only lowercase): ")
-	fmt.Scanln(&targetDomain)
-	fmt.Print(
-		"Specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**): ",
-	)
-	fmt.Scanln(&timeStamp)
-}
-
 func createDir() {
 	fmt.Println("Saving data in:", path+"/"+targetDomain)
 	err := os.Mkdir(path+"/"+targetDomain, 0777)
@@ -72,20 +83,25 @@ func createDir() {
 	}
 }
 
-func downloader(ctx context.Context, wg *sync.WaitGroup, c <-chan string, worker int) {
+func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
+	sem <- struct{}{}
+	defer func() { <-sem }()
+
 	defer wg.Done()
+
 	for {
 		select {
-		case url, ok := <-c:
-			if !ok {
-				return
-			}
-			fmt.Printf("Worker %d downloading %s\n", worker, url)
-			urlstring_ := strings.Replace(url, "/", "£", -1)
-			urlstring__ := strings.Replace(urlstring_, ":", "!!!", -1)
-			urlstring := strings.Replace(urlstring__, "?", "§§", -1)
-			file_name_check := urlstring + ".txt"
-			pathToFile := path + "/" + targetDomain + "/" + file_name_check
+		case <-ctx.Done():
+			return
+		default:
+			fmt.Printf("Worker downloading %s\n", url)
+
+			urlString_ := strings.Replace(url, "/", "£", -1)
+			urlString__ := strings.Replace(urlString_, ":", "!!!", -1)
+			urlstring := strings.Replace(urlString__, "?", "§§", -1)
+			fileNameCheck := urlstring + ".txt"
+			pathToFile := path + "/" + targetDomain + "/" + fileNameCheck
+
 			if pathExists(pathToFile) == false {
 				if len(url) < 255 {
 					content := engine.GetPage(url)
@@ -104,7 +120,6 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, c <-chan string, worker
 			} else {
 				fmt.Println("Skipping:", url)
 			}
-		case <-ctx.Done():
 			return
 		}
 	}
