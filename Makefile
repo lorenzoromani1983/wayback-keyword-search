@@ -1,6 +1,6 @@
-.PHONY: all build race build-download_channels build-download build-search
+.PHONY: all build race build-downloader build-download build-search
 
-all: lint test race build build-download_channels build-download build-search
+all: lint test race build build-downloader build-download build-search
 
 init:
 	go mod tidy
@@ -17,25 +17,25 @@ test:
 race:
 	go test -race -v ./...
 
-build-download_channels:
-	@echo "download_channels..."
-	go build -o build/download_channels cmd/download_channels/download_channels.go
+build-downloader:
+	@echo "downloader..."
+	go build -o build/downloader cmd/downloader/main.go
 
 build-download:
 	@echo "Compiling download..."
-	go build -o build/download cmd/download/download.go
+	go build -o build/download cmd/download/main.go
 
 build-search:
 	@echo "Compiling search..."
-	go build -o build/search cmd/search/search.go
+	go build -o build/search cmd/search/main.go
 
-build: build-download_channels build-download build-search
+builds: build-downloader build-download build-search
 
-run-download_channels:
-	go run cmd/download_channels/download_channels.go
+run-downloader:
+	go run cmd/downloader/main.go
 
 run-download:
-	go run cmd/download/download.go
+	go run cmd/download/main.go
 
 run-search:
-	go run cmd/search/search.go
+	go run cmd/search/main.go

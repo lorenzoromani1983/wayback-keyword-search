@@ -1,4 +1,4 @@
-# wayback-keyword-search 
+# wayback-keyword-search
 
 IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWLY (IT CAN'T LEVERAGE PARALLELISM ANYMORE).
 
@@ -18,29 +18,49 @@ There is a Python3 version and a Go version.
 
 [*] Python usage:
 
-> python3 download.py > specify your domain like: nytimes.com (no quotes!)
+```bash
+python3 download.py > specify your domain like: nytimes.com (no quotes!)
+```
 
 When the download is completed, a directory named as the domain will be saved in the local path.
 
 So you can search for keyword matches within each file in the local dir using the "search.py" file:
 
-> python3 search.py > specify your keyword (no quotes!).
+```bash
+python3 search.py > specify your keyword (no quotes!).
+```
 
 --------------------------
 
 [*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - NOT YET TESTED]
 
-> go run download.go
+```bash
+make run-downloader
+```
+
+If you use the downloader, you can use the following arguments:
+
+```bash
+downloader --domain=YOUR_SITE --timeStamp=2023 --workers=10
+```
+
+where the parameters are:
+
+* domain - specify the target domain (only lowercase)
+* timeStamp - specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**
+* workers - specify the max workers (default=10)
 
 and then:
 
-> go run search.go
+```bash
+make run-search
+```bash
 
 The best way to use the Go version is by running the compiled executables:
 
-go build search.go
+```bash
+make builds
+```
 
-go build download.go
-
-Notice that the Go version also features a download_channels.go version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
+Notice that the Go version also features a `cmd/download_channels/main.go` version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
 
