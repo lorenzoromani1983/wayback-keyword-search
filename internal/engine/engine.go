@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -42,28 +43,27 @@ func GetHistory(targetDomain string, timeStamp string) []string {
 	return results
 }
 
-func GetPage(url string) string {
-	var response string
+func GetPage(url string) (string, error) {
 
 	for n := 0; n <= 2; n++ {
 		client := http.Client{Timeout: time.Duration(10) * time.Second}
 		resp, err := client.Get(url)
 		if err != nil {
-			fmt.Println("Get Error:", url)
-		} else {
-			if resp.StatusCode == 200 {
-				response_, _ := io.ReadAll(resp.Body)
-				response = string(response_)
-				resp.Body.Close()
-				break
-			} else {
-				fmt.Println("Page not available:", url)
-				response = "page not available"
-				resp.Body.Close()
-				break
-			}
+			return "", fmt.Errorf("%w", err)
 		}
+
+		if resp.StatusCode == http.StatusOK {
+			var response string
+			responseByte, err := io.ReadAll(resp.Body)
+			if err == nil {
+				response = string(responseByte)
+			}
+			resp.Body.Close()
+			return response, nil
+		}
+
+		continue
 	}
 
-	return response
+	return "", errors.New("without any response data")
 }

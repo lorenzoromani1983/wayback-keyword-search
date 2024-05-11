@@ -108,8 +108,10 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
 
 			if pathExists(pathToFile) == false {
 				if len(url) < 255 {
-					content := engine.GetPage(url)
-					if content != "page not available" {
+					content, err := engine.GetPage(url)
+					if err != nil {
+						log.Printf("got err: %s", err)
+					} else {
 						file, err := os.Create(pathToFile)
 						if err != nil {
 							fmt.Println(err)
