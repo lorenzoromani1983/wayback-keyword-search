@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -35,10 +36,13 @@ func main() {
 
 	path, _ = os.Getwd()
 
-	if pathExists(path+"/"+targetDomain) == false {
-		setDir(createDir)
+	pathToDomain := filepath.Join(path, targetDomain)
+
+	if pathExists(pathToDomain) == false {
+		fmt.Println("Starting new download")
+		createDir(pathToDomain)
 	} else {
-		setDir(nil)
+		fmt.Println("Resuming download")
 	}
 
 	history := engine.GetHistory(targetDomain, timeStamp)
@@ -54,7 +58,7 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(historyLen)
 
-	ctx, cancel := context.WithCancel(context.TODO())
+	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
 	defer cancel()
 
 	for i := 0; i < historyLen; i++ {
@@ -66,18 +70,17 @@ func main() {
 	fmt.Println("Download completed.")
 }
 
-func pathExists(Path string) bool {
-	_, error := os.Stat(Path)
-	if os.IsNotExist(error) {
-		return false
-	} else {
-		return true
-	}
+func pathExists(path string) bool {
+    if _, err := os.Stat(path); os.IsNotExist(err) {
+        return false
+    }
+
+	return true
 }
 
-func createDir() {
-	fmt.Println("Saving data in:", path+"/"+targetDomain)
-	err := os.Mkdir(path+"/"+targetDomain, 0777)
+func createDir(pathDir string) {
+	fmt.Println("Saving data in:", pathDir)
+	err := os.Mkdir(pathDir, 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +103,8 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
 			urlString__ := strings.Replace(urlString_, ":", "!!!", -1)
 			urlstring := strings.Replace(urlString__, "?", "§§", -1)
 			fileNameCheck := urlstring + ".txt"
-			pathToFile := path + "/" + targetDomain + "/" + fileNameCheck
+
+			pathToFile := filepath.Join(path, targetDomain, fileNameCheck)
 
 			if pathExists(pathToFile) == false {
 				if len(url) < 255 {
@@ -123,15 +127,4 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
 			return
 		}
 	}
-}
-
-func setDir(function func()) {
-	var start_notice string
-	if function != nil {
-		function()
-		start_notice = "Starting new download"
-	} else {
-		start_notice = "Resuming download"
-	}
-	fmt.Println(start_notice)
 }
