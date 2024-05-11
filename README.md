@@ -34,11 +34,13 @@ python3 search.py > specify your keyword (no quotes!).
 
 [*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - remember that setting too many workers may get you blocked.]
 
+If you need to build the binary, use the following command:
+
 ```bash
 make run-downloader
 ```
 
-If you use the downloader, you can use the following arguments:
+When using the downloader, you can specify the following arguments for running it:
 
 ```bash
 downloader --domain=YOUR_SITE --timeStamp=2023 --workers=10
@@ -50,11 +52,11 @@ where the parameters are:
 * timeStamp - specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**
 * workers - specify the max workers (default=10)
 
-and then:
+And then, to build the search utilities, run the following command:
 
 ```bash
 make run-search
-```bash
+```
 
 The best way to use the Go version is by running the compiled executables:
 
@@ -62,5 +64,5 @@ The best way to use the Go version is by running the compiled executables:
 make builds
 ```
 
-Notice that the Go version also features a `cmd/download_channels/main.go` version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
+Notice that the Go version also features a `./cmd/downloader/main.go` version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
 

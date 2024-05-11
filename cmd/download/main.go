@@ -45,7 +45,12 @@ func start(function func()) {
 	} else {
 		start_notice = "Resuming download"
 	}
-	history := engine.GetHistory(targetDomain, timeStamp)
+
+	history, err := engine.GetHistory(targetDomain, timeStamp)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	fmt.Println("Number of pages saved by Archive: ")
 	fmt.Println(len(history))
 	if len(history) >= 10 {

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"wayback-keyword-search/internal/engine"
+	"wayback-keyword-search/internal/utils"
 )
 
 var sem chan struct{}
@@ -34,18 +34,30 @@ func main() {
 		return
 	}
 
-	path, _ = os.Getwd()
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
 
-	pathToDomain := filepath.Join(path, targetDomain)
+	pathDomain := filepath.Join(path, targetDomain)
 
-	if pathExists(pathToDomain) == false {
+	fmt.Println("Try to saving data in:", pathDomain)
+
+	if utils.PathExists(pathDomain) == false {
 		fmt.Println("Starting new download")
-		createDir(pathToDomain)
+		err := utils.CreateDir(pathDomain)
+		if err != nil {
+			log.Fatal("%w", err)
+		}
 	} else {
 		fmt.Println("Resuming download")
 	}
 
-	history := engine.GetHistory(targetDomain, timeStamp)
+	history, err := engine.GetHistory(targetDomain, timeStamp)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	historyLen := len(history)
 
 	fmt.Printf("Number of pages saved by Archive: %d\n", historyLen)
@@ -58,11 +70,11 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(historyLen)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	for i := 0; i < historyLen; i++ {
-		go downloader(ctx, &wg, history[i])
+		go downloader(ctx, &wg, pathDomain, history[i])
 	}
 
 	wg.Wait()
@@ -70,23 +82,7 @@ func main() {
 	fmt.Println("Download completed.")
 }
 
-func pathExists(path string) bool {
-    if _, err := os.Stat(path); os.IsNotExist(err) {
-        return false
-    }
-
-	return true
-}
-
-func createDir(pathDir string) {
-	fmt.Println("Saving data in:", pathDir)
-	err := os.Mkdir(pathDir, 0777)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
+func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url string) {
 	sem <- struct{}{}
 	defer func() { <-sem }()
 
@@ -99,34 +95,37 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, url string) {
 		default:
 			fmt.Printf("Worker downloading %s\n", url)
 
-			urlString_ := strings.Replace(url, "/", "£", -1)
-			urlString__ := strings.Replace(urlString_, ":", "!!!", -1)
+			urlString_ := strings.Replace(url, "/", "_", -1)
+			urlString__ := strings.Replace(urlString_, ":", "", -1)
 			urlstring := strings.Replace(urlString__, "?", "§§", -1)
 			fileNameCheck := urlstring + ".txt"
 
-			pathToFile := filepath.Join(path, targetDomain, fileNameCheck)
+			pathToFile := filepath.Join(basePathDir, fileNameCheck)
 
-			if pathExists(pathToFile) == false {
-				if len(url) < 255 {
-					content, err := engine.GetPage(url)
-					if err != nil {
-						log.Printf("got err: %s", err)
-					} else {
-						file, err := os.Create(pathToFile)
-						if err != nil {
-							fmt.Println(err)
-						}
-						file.WriteString(content)
-						file.Close()
-						fmt.Println("Done:", url)
-					}
-					frame := time.Duration(rand.Intn(100))
-					time.Sleep(time.Millisecond * frame)
-				}
-			} else {
-				fmt.Println("Skipping:", url)
+			if utils.PathExists(pathToFile) != false {
+				fmt.Println("skipping:", url)
+
+				return
 			}
+
+			content, err := engine.GetPage(url)
+			if err != nil {
+				log.Printf("got err: %s", err)
+			} else {
+
+				file, err := os.Create(pathToFile)
+				if err != nil {
+					log.Printf("url: %s, got err: %s", url, err)
+				} else {
+					file.WriteString(content)
+					file.Close()
+
+					fmt.Println("Done:", url)
+				}
+			}
+
 			return
 		}
 	}
 }
+
