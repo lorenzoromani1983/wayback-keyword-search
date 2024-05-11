@@ -32,7 +32,7 @@ python3 search.py > specify your keyword (no quotes!).
 
 --------------------------
 
-[*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - NOT YET TESTED]
+[*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - remember that setting too many workers may get you blocked.]
 
 ```bash
 make run-downloader
