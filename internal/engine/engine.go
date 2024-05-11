@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+var blockByTypes = map[string]struct{}{
+	"image/jpeg":               {},
+	"image/png":                {},
+	"image/gif":                {},
+	"warc/revisit":             {},
+	"text/css":                 {},
+	"application/javascript":   {},
+	"image/vnd.microsoft.icon": {},
+}
+
 func GetHistory(targetDomain string, timeStamp string) []string {
 	API_URL := "https://web.archive.org/cdx/search/cdx?url=*."
 	query_url := API_URL + targetDomain
@@ -26,16 +36,23 @@ func GetHistory(targetDomain string, timeStamp string) []string {
 	var results []string
 
 	for _, line := range lines {
-		if len(line) > 0 {
-			data := strings.Split(line, " ")
-			if strings.Contains(data[0], ")/") == true {
-				savedpage := strings.Split(data[0], ")/")[1]
-				url := targetDomain + "/" + savedpage
-				timestamp := string(data[1])
-				if strings.HasPrefix(timestamp, timeStamp) {
-					wayback_url := BASE_URL + timestamp + "/" + url
-					results = append(results, wayback_url)
-				}
+
+		if len(line) == 0 {
+			continue
+		}
+		data := strings.Split(line, " ")
+
+		if len(data) != 7 || data[4] != "200" || IsValueExists(data[3], blockByTypes) {
+			continue
+		}
+
+		if strings.Contains(data[0], ")/") == true {
+			savedpage := strings.Split(data[0], ")/")[1]
+			url := targetDomain + "/" + savedpage
+			timestamp := string(data[1])
+			if strings.HasPrefix(timestamp, timeStamp) {
+				wayback_url := BASE_URL + timestamp + "/" + url
+				results = append(results, wayback_url)
 			}
 		}
 	}
@@ -66,4 +83,12 @@ func GetPage(url string) (string, error) {
 	}
 
 	return "", errors.New("without any response data")
+}
+
+func IsValueExists(target string, list map[string]struct{}) bool {
+	if _, ok := list[target]; ok {
+		return true
+	} else {
+		return false
+	}
 }
