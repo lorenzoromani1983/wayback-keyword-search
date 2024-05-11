@@ -41,7 +41,6 @@ func GetHistory(targetDomain string, timeStamp string) ([]string, error) {
 	results := make([]string, 0, len(lines))
 
 	for _, line := range lines {
-
 		if len(line) == 0 {
 			continue
 		}
@@ -68,7 +67,6 @@ func GetHistory(targetDomain string, timeStamp string) ([]string, error) {
 }
 
 func GetPage(url string) (string, error) {
-
 	for n := 0; n <= 2; n++ {
 		client := http.Client{Timeout: time.Duration(10) * time.Second}
 		resp, err := client.Get(url)

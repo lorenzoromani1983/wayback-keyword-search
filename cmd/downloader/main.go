@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -30,8 +29,7 @@ func main() {
 	flag.Parse()
 
 	if targetDomain == "" || timeStamp == "" {
-		fmt.Println("Please provide both domain and timestamp.")
-		return
+		log.Fatalf("Please provide both domain and timestamp.")
 	}
 
 	path, err := os.Getwd()
@@ -41,18 +39,19 @@ func main() {
 
 	pathDomain := filepath.Join(path, targetDomain)
 
-	fmt.Println("Try to saving data in:", pathDomain)
+	log.Printf("try to saving data in: %s", pathDomain)
 
 	if utils.PathExists(pathDomain) == false {
-		fmt.Println("Starting new download")
+		log.Print("starting new download")
 		err := utils.CreateDir(pathDomain)
 		if err != nil {
 			log.Fatal("%w", err)
 		}
 	} else {
-		fmt.Println("Resuming download")
+		log.Print("resuming download")
 	}
 
+	log.Printf("retrieving information for %s, please wait.", targetDomain)
 	history, err := engine.GetHistory(targetDomain, timeStamp)
 	if err != nil {
 		log.Fatalf("%s", err)
@@ -60,7 +59,7 @@ func main() {
 
 	historyLen := len(history)
 
-	fmt.Printf("Number of pages saved by Archive: %d\n", historyLen)
+	log.Printf("number of pages saved by archive: %d", historyLen)
 
 	if len(history) == 0 {
 		return
@@ -74,15 +73,15 @@ func main() {
 	defer cancel()
 
 	for i := 0; i < historyLen; i++ {
-		go downloader(ctx, &wg, pathDomain, history[i])
+		go downloader(ctx, &wg, uint(i), pathDomain, history[i])
 	}
 
 	wg.Wait()
 
-	fmt.Println("Download completed.")
+	log.Printf("finished downloading | task completed: %d", historyLen)
 }
 
-func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url string) {
+func downloader(ctx context.Context, wg *sync.WaitGroup, numWorker uint, basePathDir string, url string) {
 	sem <- struct{}{}
 	defer func() { <-sem }()
 
@@ -93,7 +92,7 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url
 		case <-ctx.Done():
 			return
 		default:
-			fmt.Printf("Worker downloading %s\n", url)
+			log.Printf("worker: %d, downloading %s", numWorker, url)
 
 			urlString_ := strings.Replace(url, "/", "_", -1)
 			urlString__ := strings.Replace(urlString_, ":", "", -1)
@@ -103,7 +102,7 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url
 			pathToFile := filepath.Join(basePathDir, fileNameCheck)
 
 			if utils.PathExists(pathToFile) != false {
-				fmt.Println("skipping:", url)
+				log.Print("skipping:", url)
 
 				return
 			}
@@ -120,7 +119,7 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url
 					file.WriteString(content)
 					file.Close()
 
-					fmt.Println("Done:", url)
+					log.Printf("done: %s", url)
 				}
 			}
 
@@ -128,4 +127,3 @@ func downloader(ctx context.Context, wg *sync.WaitGroup, basePathDir string, url
 		}
 	}
 }
-
