@@ -1,6 +1,7 @@
 package web_domain
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -9,7 +10,7 @@ import (
 	"sync"
 
 	"wayback-keyword-search/internal/engine"
-	"wayback-keyword-search/internal/task"
+	"wayback-keyword-search/internal/download"
 	"wayback-keyword-search/internal/utils"
 )
 
@@ -50,7 +51,7 @@ func (d *Domain) Init() error {
 	return nil
 }
 
-func (d *Domain) Download(maxWorkers int) error {
+func (d *Domain) Download(ctx context.Context, maxWorkers int) error {
 	log.Printf("retrieving information for %s, please wait.", d.targetDomain)
 	history, err := engine.GetHistory(d.targetDomain, d.timeStamp)
 	if err != nil {
@@ -65,13 +66,13 @@ func (d *Domain) Download(maxWorkers int) error {
 		return errors.New("empty list tasks")
 	}
 
-	task := task.New(maxWorkers)
+	task := download.New(maxWorkers)
 
 	var wg sync.WaitGroup
 	wg.Add(countTasks)
 
 	for i := 0; i < countTasks; i++ {
-		go task.Download(&wg, uint(i), d.domainDir, history[i])
+		go task.Run(ctx, &wg, uint(i), d.domainDir, history[i])
 	}
 
 	wg.Wait()
