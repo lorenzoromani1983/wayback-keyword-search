@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 	"sync"
+
+	"path/filepath"
 
 	"wayback-keyword-search/internal/engine"
 	"wayback-keyword-search/internal/utils"
@@ -22,7 +22,7 @@ func New(maxWorkers int) *Task {
 	}
 }
 
-func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, rootDir string, url string) {
+func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, rootDir string, inputURL string) {
 	t.sem <- struct{}{}
 	defer func() { <-t.sem }()
 
@@ -32,22 +32,19 @@ func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, root
 	case <-ctx.Done():
 		log.Printf("worker %d was done", numWorker)
 	default:
-		log.Printf("worker: %d, downloading: %s", numWorker+1, url)
+		log.Printf("worker: %d, downloading: %s", numWorker+1, inputURL)
 
-		urlString_ := strings.Replace(url, "/", "_", -1)
-		urlString__ := strings.Replace(urlString_, ":", "", -1)
-		urlstring := strings.Replace(urlString__, "?", "§§", -1)
-		fileNameCheck := urlstring + ".txt"
+		fileName := utils.UrlToFileName(inputURL) + ".txt"
 
-		pathToFile := filepath.Join(rootDir, fileNameCheck)
+		pathToFile := filepath.Join(rootDir, fileName)
 		if utils.PathExists(pathToFile) != false {
-			log.Printf("skipping: %s", url)
+			log.Printf("skipping: %s", inputURL)
 			return
 		}
 
-		content, err := engine.GetPage(ctx, url)
+		content, err := engine.GetPage(ctx, inputURL)
 		if err != nil {
-			log.Printf("error encountered: %s while retrieving content from URL: %s", err, url)
+			log.Printf("error encountered: %s while retrieving content from URL: %s", err, inputURL)
 			return
 		}
 
@@ -60,6 +57,6 @@ func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, root
 		file.WriteString(content)
 		file.Close()
 
-		log.Printf("done: %s", url)
+		log.Printf("done: %s", pathToFile)
 	}
 }

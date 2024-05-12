@@ -2,7 +2,9 @@ package utils
 
 import (
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 )
 
 func PathExists(path string) bool {
@@ -20,4 +22,16 @@ func CreateDir(pathDir string) error {
 	}
 
 	return nil
+}
+
+func UrlToFileName(inputUrl string) (fileName string) {
+	invalidChars := []string{"/", "?", ":", "@", "&", "=", "+", "$", ","}
+	for _, char := range invalidChars {
+		inputUrl = strings.ReplaceAll(inputUrl, char, "_")
+	}
+
+	fileName, _ = url.QueryUnescape(inputUrl)
+	fileName = strings.ReplaceAll(fileName, " ", "")
+
+	return
 }
