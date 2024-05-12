@@ -10,7 +10,7 @@
             "args": [
                 "--domain=YOUR_SITE",
                 "--timeStamp=2022",
-                "--workers=15",
+                "--workers=2",
             ],
             "cwd": "${workspaceFolder}/build"
         }
