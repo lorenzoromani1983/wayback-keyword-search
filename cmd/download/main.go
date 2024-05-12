@@ -89,7 +89,7 @@ func saveFiles(array_ []string, waitgroup *sync.WaitGroup) {
 		pathToFile := path + "/" + targetDomain + "/" + file_name_check
 		if pathExists(pathToFile) == false {
 			if len(url) < 255 {
-				content, err := engine.GetPage(url)
+				content, err := engine.GetPage(nil, url)
 				if err != nil {
 					log.Printf("got err: %s", err)
 				} else {

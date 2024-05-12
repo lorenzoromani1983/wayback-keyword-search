@@ -45,7 +45,7 @@ func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, root
 			return
 		}
 
-		content, err := engine.GetPage(url)
+		content, err := engine.GetPage(ctx, url)
 		if err != nil {
 			log.Printf("got err: %s", err)
 		} else {
