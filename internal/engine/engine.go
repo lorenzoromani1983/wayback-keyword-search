@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -66,26 +67,29 @@ func GetHistory(targetDomain string, timeStamp string) ([]string, error) {
 	return results, nil
 }
 
-func GetPage(url string) (string, error) {
+func GetPage(ctx context.Context, url string) (string, error) {
 	for n := 0; n <= 2; n++ {
-		client := http.Client{Timeout: time.Duration(10) * time.Second}
-		resp, err := client.Get(url)
+		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
-			return "", fmt.Errorf("%w", err)
+			return "", fmt.Errorf("error creating request: %w", err)
 		}
 
-		if resp.StatusCode != http.StatusOK {
+		response, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return "", fmt.Errorf("error making request: %w", err)
+		}
+
+		if response.StatusCode != http.StatusOK {
 			continue
 		}
 
-		var result string
-		response, err := io.ReadAll(resp.Body)
+		data, err := io.ReadAll(response.Body)
 		if err != nil {
 			return "", fmt.Errorf("%w", err)
 		}
 
-		result = string(response)
-		resp.Body.Close()
+		result := string(data)
+		response.Body.Close()
 
 		return result, nil
 	}
