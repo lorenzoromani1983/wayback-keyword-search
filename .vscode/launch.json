@@ -8,10 +8,15 @@
             "mode": "auto",
             "program": "${workspaceRoot}/cmd/downloader/main.go",
             "args": [
-                "--domain=YOUR_SITE",
+                "--domain=microup.ru",
                 "--timeStamp=2022",
-                "--workers=15",
+                "--workers=2",
             ],
+            // "args": [
+            //     "--domain=vping.net",
+            //     "--timeStamp=2007",
+            //     "--workers=15",
+            // ],
             "cwd": "${workspaceFolder}/build"
         }
     ]
