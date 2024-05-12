@@ -50,7 +50,7 @@ func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, root
 
 		file, err := os.Create(pathToFile)
 		if err != nil {
-			log.Printf("error creating file %s: %s", pathToFile, err)
+			log.Printf("error creating file: %s", err)
 			return
 		}
 

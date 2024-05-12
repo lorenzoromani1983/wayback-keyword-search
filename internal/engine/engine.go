@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"time"
 )
 
 const API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
@@ -23,12 +22,17 @@ var blockByTypes = map[string]struct{}{
 	"image/vnd.microsoft.icon": {},
 }
 
-func GetHistory(targetDomain string, timeStamp string) ([]string, error) {
+func GetHistory(ctx context.Context, targetDomain string, timeStamp string) ([]string, error) {
 	query_url := API_URL + targetDomain
-	client := http.Client{Timeout: time.Duration(50) * time.Second}
-	response, err := client.Get(query_url)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", query_url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("can't download history for the specified domain: %w", err)
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	response, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error making request: %w", err)
 	}
 
 	body, err := io.ReadAll(response.Body)

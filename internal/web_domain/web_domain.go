@@ -48,7 +48,7 @@ func (d *Domain) Init() error {
 
 func (d *Domain) Download(ctx context.Context, maxWorkers int) error {
 	log.Printf("retrieving information for %s, please wait.", d.targetDomain)
-	history, err := engine.GetHistory(d.targetDomain, d.timeStamp)
+	history, err := engine.GetHistory(ctx, d.targetDomain, d.timeStamp)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}

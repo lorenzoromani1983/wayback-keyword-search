@@ -46,7 +46,7 @@ func start(function func()) {
 		start_notice = "Resuming download"
 	}
 
-	history, err := engine.GetHistory(targetDomain, timeStamp)
+	history, err := engine.GetHistory(nil, targetDomain, timeStamp)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
