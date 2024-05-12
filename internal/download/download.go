@@ -47,16 +47,19 @@ func (t *Task) Run(ctx context.Context, wg *sync.WaitGroup, numWorker uint, root
 
 		content, err := engine.GetPage(ctx, url)
 		if err != nil {
-			log.Printf("got err: %s", err)
-		} else {
-			file, err := os.Create(pathToFile)
-			if err != nil {
-				log.Printf("url: %s, got err: %s", url, err)
-			} else {
-				file.WriteString(content)
-				file.Close()
-				log.Printf("done: %s", url)
-			}
+			log.Printf("error encountered: %s while retrieving content from URL: %s", err, url)
+			return
 		}
+
+		file, err := os.Create(pathToFile)
+		if err != nil {
+			log.Printf("error creating file %s: %s", pathToFile, err)
+			return
+		}
+
+		file.WriteString(content)
+		file.Close()
+
+		log.Printf("done: %s", url)
 	}
 }

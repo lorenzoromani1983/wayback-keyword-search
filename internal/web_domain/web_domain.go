@@ -36,16 +36,11 @@ func (d *Domain) Init() error {
 
 	d.domainDir = filepath.Join(rootDir, d.targetDomain)
 
-	log.Printf("try to saving data in: %s", d.domainDir)
-
 	if utils.PathExists(d.domainDir) == false {
-		log.Print("starting new download")
 		err := utils.CreateDir(d.domainDir)
 		if err != nil {
 			return fmt.Errorf("%w", err)
 		}
-	} else {
-		log.Print("resuming download")
 	}
 
 	return nil
