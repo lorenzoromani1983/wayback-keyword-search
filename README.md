@@ -23,13 +23,13 @@ python3 download.py -h > help
 options:
   -h, --help            show this help message and exit
   
-  -d DOMAIN, --domain DOMAIN
+  -d DOMAIN, --domain DOMAIN : 
                         Target domain (e.g. example.com)
                         
-  -s SLEEP, --sleep SLEEP
+  -s SLEEP, --sleep SLEEP : 
                         Sleep time in seconds between each request (default: 1)
                         
-  -t TIMESTAMP, --timestamp TIMESTAMP
+  -t TIMESTAMP, --timestamp TIMESTAMP : 
                         Timestamp filter (e.g. yyyymmdd, yyyymm, yyyy). Use '2' for all 20** years, '1' for all 19** years, or leave empty for all.
 
 ```bash
@@ -38,22 +38,22 @@ python3 search.py -h > help
 
 options:
 
-  -h, --help            show this help message and exit
+  -h, --help            : show this help message and exit
   
-  -d DOMAIN, --domain DOMAIN
+  -d DOMAIN, --domain DOMAIN : 
                         Filter by domain in URL (e.g. example.com). Use 'all' to search across all saved domains.
                         
-  -k KEYWORD, --keyword KEYWORD
+  -k KEYWORD, --keyword KEYWORD : 
                         Search string or regex pattern
                         
-  -r, --regex           Interpret keyword as a regular expression
+  -r, --regex          : Interpret keyword as a regular expression
   
-  -i, --ignore-case     Case-insensitive regex search (only with -r)
+  -i, --ignore-case    : Case-insensitive regex search (only with -r)
   
   -o OUTPUT, --output OUTPUT
-                        Export results to CSV file (specify filename)
+                       : Export results to CSV file (specify filename)
                         
-  -l, --list-domains    List all domains saved in the database
+  -l, --list-domains  :  List all domains saved in the database
 
 An sql file will be created in the local directory, containing the text of each saved page.
 
