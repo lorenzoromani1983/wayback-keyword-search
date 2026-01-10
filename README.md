@@ -1,6 +1,6 @@
 # wayback-keyword-search
 
-IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWLY (IT CAN'T LEVERAGE PARALLELISM ANYMORE).
+IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWER THAN BEFORE RATE LIMITING WAS INRODUCED.
 
 This tools downloads each page from the Wayback Machine for a specific input domain and saves each page in a local .sqlite file, so that you can later search for keyword matches within the saved snapshot of each page.
 
@@ -21,7 +21,7 @@ python3 download.py -h > help
 ```
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help       :     show this help message and exit
   
   -d DOMAIN, --domain DOMAIN : 
                         Target domain (e.g. example.com)
