@@ -1,4 +1,4 @@
-# wayback-keyword-search - NOT MAINTAINED ANYMORE - NEW VERSION COMING SOON
+# wayback-keyword-search
 
 IMPORTANT NOTICE: WAYBACK IS NOW RATE LIMITING. TOOL IS STILL RUNNING, BUT SLOWLY (IT CAN'T LEVERAGE PARALLELISM ANYMORE).
 
@@ -8,11 +8,9 @@ Downloading is done with the "download" file; and searching with the "search" fi
 
 You can download pages saved in specific years (i.e.: 2020), or years and months (i.e.: 202001), or years and months and days (i.e: 20200101), just specifying the date format in the prompt. If you want to download everything in the 2000's or 19**'s regardless the saved date, just type "2" (for the pages saved past 2000) or "1" (for the pages saved in the XXth century) in the prompt, and the tool will save each page matching that criteria. So, if you want to download a website that has been archived across 1999 and 2000, you will need to run the tool twice.
 
-If you need to download big websites (thousands of saved pages), it may require quite a long time now. Still better than nothing. I advice using a VPN with auto switch, changing IP address every 30 minutes to avoid blocking.
+If you need to download big websites (thousands of saved pages), it may require quite a long time now. Still better than nothing.
 
 Sometimes, when the Wayback API is down, you cannot fetch the entire list of URLs it has archived (this happens quite often based on recent experience); so be patient and retry.
-
-There is a Python3 version and a Go version.
 
 --------------------------
 
@@ -22,45 +20,14 @@ There is a Python3 version and a Go version.
 python3 download.py > specify your domain like: nytimes.com (no quotes!)
 ```
 
-When the download is completed, a directory named as the domain will be saved in the local path.
+An sql file will be created, containing the text of each saved page.
 
-So you can search for keyword matches within each file in the local dir using the "search.py" file:
+So you can search for keyword matches within each file in the sql file using the "search.py" file:
 
 ```bash
 python3 search.py > specify your keyword (no quotes!).
 ```
 
---------------------------
-
-[*] Go usage: [FOLLOWING PULL REQUEST THE CODE HAS BEEN REFACTORED - remember that setting too many workers may get you blocked.]
-
-```bash
-make run-downloader
-```
-
-If you use the downloader, you can use the following arguments:
-
-```bash
-downloader --domain=YOUR_SITE --timeStamp=2023 --workers=10
-```
-
-where the parameters are:
-
-* domain - specify the target domain (only lowercase)
-* timeStamp - specify timestamp in the format:'yyyymmdd' (also: 'yyyy' > download only a specific year; 'yyyymm' > year and month; '2' or '1' > everything for the years past 20** or 19**
-* workers - specify the max workers (default=10)
-
-and then:
-
-```bash
-make run-search
-```bash
-
-The best way to use the Go version is by running the compiled executables:
-
-```bash
-make builds
-```
 
 Notice that the Go version also features a `cmd/download_channels/main.go` version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
 
