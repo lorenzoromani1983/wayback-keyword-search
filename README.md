@@ -17,14 +17,37 @@ Sometimes, when the Wayback API is down, you cannot fetch the entire list of URL
 [*] Python usage:
 
 ```bash
-python3 download.py > specify your domain like: nytimes.com
+python3 download.py -h > help
 ```
+
+options:
+  -h, --help            show this help message and exit
+  -d DOMAIN, --domain DOMAIN
+                        Target domain (e.g. example.com)
+  -s SLEEP, --sleep SLEEP
+                        Sleep time in seconds between each request (default: 1)
+  -t TIMESTAMP, --timestamp TIMESTAMP
+                        Timestamp filter (e.g. yyyymmdd, yyyymm, yyyy). Use '2' for all 20** years, '1' for all 19** years, or leave empty for all.
+
+```bash
+python3 search.py > specify your keyword (no quotes!).
+```
+
+options:
+  -h, --help            show this help message and exit
+  -d DOMAIN, --domain DOMAIN
+                        Filter by domain in URL (e.g. example.com). Use 'all' to search across all saved domains.
+  -k KEYWORD, --keyword KEYWORD
+                        Search string or regex pattern
+  -r, --regex           Interpret keyword as a regular expression
+  -i, --ignore-case     Case-insensitive regex search (only with -r)
+  -o OUTPUT, --output OUTPUT
+                        Export results to CSV file (specify filename)
+  -l, --list-domains    List all domains saved in the database
 
 An sql file will be created in the local directory, containing the text of each saved page.
 
 So you can search for keyword matches within each saved page in the sql file using the "search.py" file:
 
-```bash
-python3 search.py > specify your keyword (no quotes!).
-```
+
 
