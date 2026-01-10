@@ -28,6 +28,3 @@ So you can search for keyword matches within each file in the sql file using the
 python3 search.py > specify your keyword (no quotes!).
 ```
 
-
-Notice that the Go version also features a `cmd/download_channels/main.go` version (thanks to Stephen Paulger for such improvement) which is a bit more efficient. Consider testing both!
-
