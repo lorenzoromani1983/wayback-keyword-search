@@ -1,3 +1,4 @@
+import argparse
 import os
 import sqlite3
 import time
@@ -7,7 +8,6 @@ API_URL = "https://web.archive.org/cdx/search/cdx?url=*."
 BASE_URL = "http://web.archive.org/web/"
 
 # Timing controls
-intercall_timer = 0
 batch_timer = 5
 divisore = 20
 
@@ -62,7 +62,7 @@ def batch_existing(conn, urls, batch_size=500):
     return existing
 
 
-def fetch_and_store(session, conn, url):
+def fetch_and_store(session, conn, url, intercall_timer=0):
     time.sleep(intercall_timer)
     resp = session.get(url, timeout=30)
 
@@ -89,12 +89,31 @@ def fetch_and_store(session, conn, url):
         return False
 
 def main():
-    domain = input("Type the target domain: ")
-    timeStamp = str(
-        input(
-            "Specify a timestamp, ex: yyyymmdd, but also: yyyymm. Type '2' or '1' > to download everything for the years past 20** or 19**): "
-        )
+    parser = argparse.ArgumentParser(
+        description="Download archived pages from Wayback Machine for a given domain."
     )
+    parser.add_argument(
+        "-d", "--domain",
+        required=True,
+        help="Target domain (e.g. example.com)"
+    )
+    parser.add_argument(
+        "-s", "--sleep",
+        type=float,
+        default=1,
+        help="Sleep time in seconds between each request (default: 1)"
+    )
+    parser.add_argument(
+        "-t", "--timestamp",
+        default="",
+        help="Timestamp filter (e.g. yyyymmdd, yyyymm, yyyy). "
+             "Use '2' for all 2*** years, '1' for all 19** years, or leave empty for all."
+    )
+    args = parser.parse_args()
+
+    domain = args.domain
+    timeStamp = args.timestamp
+    intercall_timer = args.sleep
 
     localDir = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(localDir, "archive.db")
@@ -120,14 +139,13 @@ def main():
                 print(f"Sleeping {batch_timer} seconds...ZzZz")
                 time.sleep(batch_timer)
             try:
-                if fetch_and_store(session, conn, url):
+                if fetch_and_store(session, conn, url, intercall_timer):
                     downloaded += 1
             except requests.exceptions.ConnectionError as e:
                 cause = e.__cause__ or e.__context__
                 if isinstance(cause, OSError) and getattr(cause, "errno", None) in {61, 111}:
                     print(f"Connection refused when reaching {url}")
                 else:
-                    #print(f"Network connection failed for {url}: {cause or e}")
                     print("Blocked. Sleeping for 5 minutes.")
                     time.sleep(300)
                 continue
